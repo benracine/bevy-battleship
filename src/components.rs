@@ -1,66 +1,56 @@
 //! ECS components for Battleship
 use bevy::prelude::*;
 
+/// Unique identifier for a player
+#[derive(Component, Clone, Copy, PartialEq, Eq, Hash, Debug)]
+pub struct PlayerId(pub u8);
+
 #[derive(Component, Clone, Copy, PartialEq, Eq, Debug)]
 pub enum PlayerType {
     Human,
     Computer,
 }
 
-#[derive(Component)]
+#[derive(Component, Debug)]
 pub struct Player {
-    pub id: u32,
+    pub id: PlayerId,
+    pub name: String,
     pub player_type: PlayerType,
 }
 
-#[derive(Component)]
+#[derive(Component, Debug)]
 pub struct Board {
-    pub cells: Vec<Cell>,
+    pub size: UVec2,
+    pub owner: PlayerId,
 }
 
-impl Board {
-    pub fn new_10x10() -> Self {
-        let mut cells = Vec::with_capacity(100);
-        for y in 0..10 {
-            for x in 0..10 {
-                cells.push(Cell {
-                    coord: Coord { x, y },
-                    cell_state: CellState::Empty,
-                    transform: Transform {
-                        translation: [x as f32, y as f32],
-                    },
-                });
-            }
-        }
-        Board { cells }
-    }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Component, Debug, Clone, Copy, PartialEq)]
 pub struct Cell {
-    pub coord: Coord,
-    pub cell_state: CellState,
-    pub transform: Transform,
+    pub coord: UVec2,
+    pub state: CellState,
+    pub board: Entity, // Reference to parent board entity
 }
 
 /// 2D transform for grid layout (position in world space)
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Component, Clone, Copy, Debug, PartialEq)]
 pub struct Transform {
-    pub translation: [f32; 2],
+    pub position: Vec2,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum CellState {
     Empty,
-    Occupied,
+    Occupied(ShipName),
     Hit,
     Miss,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct Coord {
-    pub x: u8,
-    pub y: u8,
+/// Ship component for each ship entity
+#[derive(Component, Debug)]
+pub struct Ship {
+    pub name: ShipName,
+    pub owner: PlayerId,
+    pub cells: Vec<UVec2>, // Coordinates occupied by this ship
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
