@@ -1,4 +1,4 @@
-#![allow(dead_code)]
+#![allow(unused)]
 //! Classic Battleship game in Bevy.
 //! - 1 human player, 1 computer player (initially)
 //! - Boards are randomly set at first; later, allow player to set their own

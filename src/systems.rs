@@ -37,7 +37,7 @@ pub fn spawn_ships(mut commands: Commands, query: Query<&Board>) {
         for ship_name in ShipName::iter() {
             let ship_length = ship_name.length() as u32;
             'placement: loop {
-                let direction = if rng.gen_bool(0.5) {
+                let direction = if rng.random_bool(0.5) {
                     ShipDirection::Horizontal
                 } else {
                     ShipDirection::Vertical
