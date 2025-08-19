@@ -7,7 +7,6 @@ use rand::Rng;
 use std::collections::HashSet;
 use strum::IntoEnumIterator;
 
-// Define the CellTransform component that was missing
 #[derive(Component)]
 pub struct CellTransform {
     pub position: Vec2,
@@ -42,7 +41,6 @@ pub fn spawn_ships(mut commands: Commands, query: Query<&Board>) {
         let mut rng = rand::rng();
         for ship_name in ShipName::iter() {
             let ship_length = ship_name.length() as u32;
-            // Try as may times as necessary to find a placement that fits on the board
             'placement: loop {
                 let direction = if rng.random() {
                     ShipDirection::Horizontal
@@ -66,7 +64,6 @@ pub fn spawn_ships(mut commands: Commands, query: Query<&Board>) {
                     }
                     cells.push(coord);
                 }
-                // All cells are free, place the ship
                 for &coord in &cells {
                     occupied.insert(coord);
                 }
@@ -109,20 +106,17 @@ pub fn render_boards(
     cell_query: Query<(Entity, &Cell, &Transform), Without<Sprite>>,
     board_query: Query<&Board>,
 ) {
-    // Get board positions - player 1 on left, player 2 on right
     let mut player_boards = std::collections::HashMap::new();
     for board in board_query.iter() {
         let board_offset = match board.owner.0 {
-            0 => Vec3::new(-6.0, 0.0, 0.0), // Player 1 board on left
-            1 => Vec3::new(6.0, 0.0, 0.0),  // Player 2 board on right
+            0 => Vec3::new(-6.0, 0.0, 0.0),
+            1 => Vec3::new(6.0, 0.0, 0.0),
             _ => Vec3::ZERO,
         };
         player_boards.insert(board.owner, board_offset);
     }
 
-    // Render cells for each board
     for (entity, cell, transform) in cell_query.iter() {
-        // Get the board this cell belongs to
         if let Ok(board) = board_query.get(cell.board) {
             let board_offset = player_boards.get(&board.owner).copied().unwrap_or(Vec3::ZERO);
             

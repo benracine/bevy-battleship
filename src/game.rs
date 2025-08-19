@@ -1,5 +1,3 @@
-//! Game setup and orchestration for Battleship
-
 use crate::resources::GameState;
 use crate::systems::{render_boards, setup_camera, spawn_boards, spawn_cells, spawn_players, spawn_ships};
 use bevy::prelude::*;
