@@ -98,9 +98,36 @@ pub fn spawn_cells(mut commands: Commands, query: Query<(Entity, &Board)>) {
 }
 
 pub fn setup_camera(mut commands: Commands) {
+    commands.spawn(Camera2d::default());
+}
+
+pub fn test_simple_render(mut commands: Commands) {
+    // Spawn a few test sprites at known positions
     commands.spawn((
-        Camera2d::default(),
-        Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)).with_scale(Vec3::splat(0.5)),
+        Sprite {
+            color: Srgba::rgb(1.0, 0.0, 0.0).into(),
+            custom_size: Some(Vec2::splat(100.0)),
+            ..Default::default()
+        },
+        Transform::from_translation(Vec3::new(-200.0, 0.0, 0.0)),
+    ));
+    
+    commands.spawn((
+        Sprite {
+            color: Srgba::rgb(0.0, 1.0, 0.0).into(),
+            custom_size: Some(Vec2::splat(100.0)),
+            ..Default::default()
+        },
+        Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
+    ));
+    
+    commands.spawn((
+        Sprite {
+            color: Srgba::rgb(0.0, 0.0, 1.0).into(),
+            custom_size: Some(Vec2::splat(100.0)),
+            ..Default::default()
+        },
+        Transform::from_translation(Vec3::new(200.0, 0.0, 0.0)),
     ));
 }
 
@@ -112,8 +139,8 @@ pub fn render_boards(
     let mut player_boards = std::collections::HashMap::new();
     for board in board_query.iter() {
         let board_offset = match board.owner.0 {
-            0 => Vec3::new(-240.0, 0.0, 0.0),
-            1 => Vec3::new(240.0, 0.0, 0.0),
+            0 => Vec3::new(-250.0, 0.0, 0.0),
+            1 => Vec3::new(250.0, 0.0, 0.0),
             _ => Vec3::ZERO,
         };
         player_boards.insert(board.owner, board_offset);
@@ -126,7 +153,7 @@ pub fn render_boards(
             let color = match cell.state {
                 CellState::Empty => Srgba::rgb(0.7, 0.7, 1.0),
                 CellState::Occupied(_) => Srgba::rgb(0.3, 0.3, 0.8),
-                CellState::Hit => Srgba::RED,
+                CellState::Hit => Srgba::rgb(1.0, 0.0, 0.0),
                 CellState::Miss => Srgba::rgb(0.5, 0.5, 0.5),
             };
             
@@ -134,11 +161,15 @@ pub fn render_boards(
                 .entity(entity)
                 .insert(Sprite {
                     color: color.into(),
-                    custom_size: Some(Vec2::splat(32.0)),
+                    custom_size: Some(Vec2::splat(40.0)),
                     ..Default::default()
                 })
                 .insert(Transform::from_translation(
-                    (transform.translation + board_offset) * 40.0,
+                    Vec3::new(
+                        (transform.translation.x * 45.0) + board_offset.x - 200.0,
+                        (transform.translation.y * 45.0) + board_offset.y + 200.0,
+                        0.0
+                    ),
                 ));
         }
     }
