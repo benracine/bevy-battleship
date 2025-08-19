@@ -5,6 +5,9 @@
 //! - Human provides real moves; computer makes automated moves
 
 mod game;
+mod systems;
+mod components;
+mod resources;
 
 fn main() {
     game::run_game_app();
