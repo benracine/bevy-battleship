@@ -12,6 +12,7 @@ const BLUE: Srgba = Srgba::rgb(0.0, 0.3, 0.6);
 const RED: Srgba = Srgba::rgb(1.0, 0.0, 0.0);
 const GRID_CELL_SIZE: f32 = 30.0;
 const GRID_CELL_MARGIN: f32 = 5.0;
+const GRID_PITCH: f32 = GRID_CELL_SIZE + GRID_CELL_MARGIN;
 
 #[derive(Component)]
 pub struct CellTransform {
@@ -142,6 +143,48 @@ pub fn setup_camera(mut commands: Commands) {
     commands.spawn(Camera2d::default());
 }
 
+pub fn spawn_board_labels(
+    mut commands: Commands,
+    board_query: Query<&Board>,
+    asset_server: Res<AssetServer>,
+) {
+    // Precompute board offsets like in render_boards
+    let mut board_offsets = std::collections::HashMap::new();
+    for board in board_query.iter() {
+        let board_offset = match board.player_type {
+            PlayerType::Human => Vec3::new(0.0, -220.0, 0.0),
+            PlayerType::Computer => Vec3::new(0.0, 220.0, 0.0),
+        };
+        board_offsets.insert(board.owner, board_offset);
+    }
+
+    let font: Handle<Font> = asset_server.load("fonts/FiraSans-Bold.ttf");
+
+    for board in board_query.iter() {
+        let board_offset = *board_offsets
+            .get(&board.owner)
+            .unwrap_or(&Vec3::ZERO);
+
+        // Top-left cell center of the grid in world space (matches render_boards math)
+        let top_left = Vec2::new(board_offset.x - 200.0, board_offset.y + 200.0);
+        let grid_w = (board.size.x as f32 - 1.0) * GRID_PITCH;
+        // let grid_h = (board.size.y as f32 - 1.0) * GRID_PITCH; // not needed for label
+
+        let center_x = top_left.x + grid_w * 0.5;
+        let label_y = top_left.y + GRID_CELL_SIZE * 0.5 + 24.0; // a bit above the grid
+
+        let label_text = match board.player_type {
+            PlayerType::Human => "You",
+            PlayerType::Computer => "Computer",
+        };
+
+    commands.spawn((
+        Text2d::new(label_text),
+        Transform::from_xyz(center_x, label_y, 10.0),
+    ));
+    }
+}
+
 pub fn render_boards(
     mut commands: Commands,
     cell_query: Query<(Entity, &Cell, &GridPos, &Transform), Without<Sprite>>,
@@ -188,8 +231,8 @@ pub fn render_boards(
                 })
                 .insert(Transform::from_translation(
                     Vec3::new(
-                        (transform.translation.x * (GRID_CELL_SIZE + GRID_CELL_MARGIN)) + board_offset.x - 200.0,
-                        (transform.translation.y * (GRID_CELL_SIZE + GRID_CELL_MARGIN)) + board_offset.y + 200.0,
+                        (transform.translation.x * GRID_PITCH) + board_offset.x - 200.0,
+                        (transform.translation.y * GRID_PITCH) + board_offset.y + 200.0,
                         0.0
                     ),
                 ));
