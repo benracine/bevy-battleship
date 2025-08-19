@@ -1,11 +1,17 @@
-use std::collections::HashSet;
+use crate::components::{
+    Board, Cell, CellState, Player, PlayerId, PlayerType, Ship, ShipDirection, ShipName,
+};
 use bevy::prelude::*;
 use bevy::sprite::Sprite;
 use rand::Rng;
+use std::collections::HashSet;
 use strum::IntoEnumIterator;
-use crate::components::{
-    Board, Cell, CellState, Player, PlayerId, PlayerType, Ship, ShipDirection, ShipName, Transform,
-};
+
+// Define the CellTransform component that was missing
+#[derive(Component)]
+pub struct CellTransform {
+    pub position: Vec2,
+}
 
 pub fn spawn_players(mut commands: Commands) {
     commands.spawn(Player {
@@ -37,7 +43,8 @@ pub fn spawn_ships(mut commands: Commands, query: Query<&Board>) {
         for ship_name in ShipName::iter() {
             let ship_length = ship_name.length() as u32;
             'placement: loop {
-                let direction = if rng.random_bool(0.5) {
+                let direction = if rng.random() {
+                    // Fixed: use random() instead of gen_bool
                     ShipDirection::Horizontal
                 } else {
                     ShipDirection::Vertical
@@ -46,8 +53,8 @@ pub fn spawn_ships(mut commands: Commands, query: Query<&Board>) {
                     ShipDirection::Horizontal => (board.size.x - ship_length, board.size.y - 1),
                     ShipDirection::Vertical => (board.size.x - 1, board.size.y - ship_length),
                 };
-                let start_x = rng.random_range(0..=max_x);
-                let start_y = rng.random_range(0..=max_y);
+                let start_x = rng.random_range(0..=max_x); // Fixed: use random_range
+                let start_y = rng.random_range(0..=max_y); // Fixed: use random_range
                 let mut cells = Vec::new();
                 for i in 0..ship_length {
                     let coord = match direction {
@@ -86,7 +93,7 @@ pub fn spawn_cells(mut commands: Commands, query: Query<(Entity, &Board)>) {
                         state: CellState::Empty,
                         board: board_entity,
                     },
-                    Transform {
+                    CellTransform {
                         position: Vec2::new(x as f32, y as f32),
                     },
                 ));
@@ -99,25 +106,27 @@ pub fn setup_camera(mut commands: Commands) {
     commands.spawn(Camera2d::default());
 }
 
+// Fixed: Added the missing CellTransform parameter and corrected the query
 pub fn render_cells(
     mut commands: Commands,
-    query: Query<(Entity, &Cell, &Transform), Without<Sprite>>,
+    query: Query<(Entity, &Cell, &CellTransform), Without<Sprite>>,
 ) {
-    for (entity, cell, transform) in query.iter() {
-            let color = match cell.state {
-                CellState::Empty => Srgba::rgb(0.7, 0.7, 1.0),
-                CellState::Occupied(_) => Srgba::rgb(0.3, 0.3, 0.8),
-                CellState::Hit => Srgba::RED,
-                CellState::Miss => Srgba::rgb(0.5, 0.5, 0.5),
-            };
-        commands.entity(entity)
+    for (entity, cell, cell_transform) in query.iter() {
+        let color = match cell.state {
+            CellState::Empty => Srgba::rgb(0.7, 0.7, 1.0),
+            CellState::Occupied(_) => Srgba::rgb(0.3, 0.3, 0.8),
+            CellState::Hit => Srgba::RED,
+            CellState::Miss => Srgba::rgb(0.5, 0.5, 0.5),
+        };
+        commands
+            .entity(entity)
             .insert(Sprite {
-                color,
+                color: color.into(),
                 custom_size: Some(Vec2::splat(0.9)),
                 ..Default::default()
             })
             .insert(Transform::from_translation(
-                transform.position.extend(0.0)
+                cell_transform.position.extend(0.0),
             ));
     }
 }
