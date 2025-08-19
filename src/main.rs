@@ -15,7 +15,6 @@ use systems::{setup_battleship, setup_camera};
 fn main() {
     App::new()
         .init_resource::<GameState>()
-    .add_systems(bevy::app::Startup, (setup_camera, setup_battleship))
+        .add_systems(Startup, (setup_camera, setup_battleship))
         .run();
 }
-
