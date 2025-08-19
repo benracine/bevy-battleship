@@ -4,8 +4,8 @@
 //! - Boards are randomly set at first; later, allow player to set their own
 //! - Human provides real moves; computer makes automated moves
 
-mod game;
 mod components;
+mod game;
 mod resources;
 mod systems;
 

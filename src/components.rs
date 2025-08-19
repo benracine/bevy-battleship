@@ -45,10 +45,17 @@ pub enum CellState {
     Miss,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub enum ShipDirection {
+    Vertical,
+    Horizontal,
+}
+
 #[derive(Component, Debug)]
 pub struct Ship {
     pub name: ShipName,
     pub owner: PlayerId,
+    pub direction: ShipDirection,
     pub cells: Vec<UVec2>,
 }
 

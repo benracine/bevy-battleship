@@ -9,12 +9,7 @@ pub fn run_game_app() {
         .init_resource::<GameState>()
         .add_systems(
             Startup,
-            (
-                setup_camera,
-                spawn_players,
-                spawn_boards,
-                spawn_cells,
-            ),
+            (setup_camera, spawn_players, spawn_boards, spawn_cells),
         )
         .run();
 }

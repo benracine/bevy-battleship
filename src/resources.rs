@@ -12,5 +12,5 @@ impl Default for GameState {
             current_turn_id: 0,
             winner: None,
         }
-    }        
+    }
 }

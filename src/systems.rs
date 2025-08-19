@@ -1,6 +1,10 @@
-use bevy::prelude::*;
 
-use crate::components::{Board, Cell, CellState, Player, PlayerId, PlayerType, Ship, Transform};
+use crate::components::{
+    Board, Cell, CellState, Player, PlayerId, PlayerType, Ship, ShipDirection, ShipName, Transform,
+};
+use bevy::prelude::*;
+use rand::Rng;
+use std::collections::HashSet;
 
 pub fn spawn_players(mut commands: Commands) {
     commands.spawn(Player {
@@ -27,13 +31,46 @@ pub fn spawn_boards(mut commands: Commands, query: Query<&Player>) {
 
 pub fn spawn_ships(mut commands: Commands, query: Query<&Board>) {
     for board in query.iter() {
-        // Iterate over each shipname
-        
-        commands.spawn(Ship {
-            name: ShipName::Carrier,
-            owner: board.owner,
-            cells: vec![UVec2::new(0, 0), UVec2::new(1, 0), UVec2::new(2, 0)],
-        });
+        let mut occupied = HashSet::new();
+        let mut rng = rand::rng();
+        for ship_name in ShipName::iter() {
+            let ship_length = ship_name.length() as u32;
+            'placement: loop {
+                let direction = if rng.gen_bool(0.5) {
+                    ShipDirection::Horizontal
+                } else {
+                    ShipDirection::Vertical
+                };
+                let (max_x, max_y) = match direction {
+                    ShipDirection::Horizontal => (board.size.x - ship_length, board.size.y - 1),
+                    ShipDirection::Vertical => (board.size.x - 1, board.size.y - ship_length),
+                };
+                let start_x = rng.random_range(0..=max_x);
+                let start_y = rng.random_range(0..=max_y);
+                let mut cells = Vec::new();
+                for i in 0..ship_length {
+                    let coord = match direction {
+                        ShipDirection::Horizontal => UVec2::new(start_x + i, start_y),
+                        ShipDirection::Vertical => UVec2::new(start_x, start_y + i),
+                    };
+                    if occupied.contains(&coord) {
+                        continue 'placement;
+                    }
+                    cells.push(coord);
+                }
+                // All cells are free, place the ship
+                for &coord in &cells {
+                    occupied.insert(coord);
+                }
+                commands.spawn(Ship {
+                    name: ship_name,
+                    owner: board.owner,
+                    direction,
+                    cells,
+                });
+                break;
+            }
+        }
     }
 }
 
