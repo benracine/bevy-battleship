@@ -1,7 +1,6 @@
-//! ECS components for Battleship
+// ...existing code...
 use bevy::prelude::*;
 
-/// Unique identifier for a player
 #[derive(Component, Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct PlayerId(pub u8);
 
@@ -28,10 +27,9 @@ pub struct Board {
 pub struct Cell {
     pub coord: UVec2,
     pub state: CellState,
-    pub board: Entity, // Reference to parent board entity
+    pub board: Entity,
 }
 
-/// 2D transform for grid layout (position in world space)
 #[derive(Component, Clone, Copy, Debug, PartialEq)]
 pub struct Transform {
     pub position: Vec2,
@@ -45,12 +43,11 @@ pub enum CellState {
     Miss,
 }
 
-/// Ship component for each ship entity
 #[derive(Component, Debug)]
 pub struct Ship {
     pub name: ShipName,
     pub owner: PlayerId,
-    pub cells: Vec<UVec2>, // Coordinates occupied by this ship
+    pub cells: Vec<UVec2>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]

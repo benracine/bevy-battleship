@@ -68,8 +68,6 @@ pub fn setup_battleship(mut commands: Commands) {
         }
     }
 
-
-
     commands.insert_resource(GameState {
         current_turn_id: 0,
         winner: None,
