@@ -4,10 +4,12 @@ use crate::components::{Board, Cell, CellState, Player, PlayerId, PlayerType, Tr
 use crate::resources::GameState;
 
 pub fn setup_battleship(mut commands: Commands) {
-    // Create two players
+
+    // Create two player ids
     let player1_id = PlayerId(0);
     let player2_id = PlayerId(1);
 
+    // Create the actual players
     let _player1 = commands
         .spawn(Player {
             id: player1_id,
@@ -65,6 +67,8 @@ pub fn setup_battleship(mut commands: Commands) {
             ));
         }
     }
+
+
 
     commands.insert_resource(GameState {
         current_turn_id: 0,
