@@ -84,12 +84,10 @@ impl Ship {
     pub fn occupies_cell(&self, coord: UVec2) -> bool {
         self.cells.contains(&coord)
     }
-    
-    pub fn is_at_coord(&self, coord: UVec2) -> Option<ShipName> {
-        if self.occupies_cell(coord) {
-            Some(self.name)
-        } else {
-            None
-        }
-    }
+}
+
+#[derive(Component, Debug)]
+pub struct PlayerLabels {
+    player_id: PlayerId,
+    label: String,
 }

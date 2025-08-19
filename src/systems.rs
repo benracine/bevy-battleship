@@ -7,6 +7,10 @@ use rand::Rng;
 use std::collections::HashSet;
 use strum::IntoEnumIterator;
 
+const GRAY: Srgba = Srgba::rgb(0.5, 0.5, 0.5);
+const BLUE: Srgba = Srgba::rgb(0.0, 0.3, 0.6);
+const RED: Srgba = Srgba::rgb(1.0, 0.0, 0.0);
+
 #[derive(Component)]
 pub struct CellTransform {
     pub position: Vec2,
@@ -110,6 +114,8 @@ pub fn spawn_ships(mut commands: Commands, query: Query<&Board>) {
     }
 }
 
+//
+
 pub fn spawn_cells(mut commands: Commands, query: Query<(Entity, &Board)>) {
     for (board_entity, board) in query.iter() {
         for y in 0..board.size.y {
@@ -159,13 +165,13 @@ pub fn render_boards(
             let color = match cell.state {
                 CellState::Empty => {
                     if is_occupied {
-                        Srgba::rgb(0.3, 0.3, 0.8)
+                        GRAY
                     } else {
-                        Srgba::rgb(0.7, 0.7, 1.0)
+                        BLUE
                     }
                 }
-                CellState::Hit => Srgba::rgb(1.0, 0.0, 0.0),
-                CellState::Miss => Srgba::rgb(0.5, 0.5, 0.5),
+                CellState::Hit => RED,
+                CellState::Miss => Srgba::rgb(0.8, 0.8, 0.8),
             };
             
             commands
