@@ -1,7 +1,6 @@
 use bevy::prelude::*;
 
 use crate::components::{Board, Cell, CellState, Player, PlayerId, PlayerType, Transform};
-use crate::resources::GameState;
 
 pub fn spawn_players(mut commands: Commands) {
     commands.spawn(Player {
@@ -44,13 +43,6 @@ pub fn spawn_cells(mut commands: Commands, query: Query<(Entity, &Board)>) {
             }
         }
     }
-}
-
-pub fn setup_gamestate(mut commands: Commands) {
-    commands.insert_resource(GameState {
-        current_turn_id: 0,
-        winner: None,
-    });
 }
 
 pub fn setup_camera(mut commands: Commands) {
