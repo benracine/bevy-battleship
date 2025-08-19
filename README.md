@@ -27,7 +27,7 @@ A simple implementation of the classic Battleship game using the [Bevy](https://
 - `src/resources.rs` - Global resources (game state)
 - `src/main.rs` - App entry point
 
-# Fast Development Loop
+# Development Loop
 
 For a rapid inner development loop, you can use [`cargo-watch`](https://crates.io/crates/cargo-watch) and [`cargo-update`](https://crates.io/crates/cargo-update).
 
