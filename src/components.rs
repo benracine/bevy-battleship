@@ -1,12 +1,16 @@
-// ...existing code...
 use bevy::prelude::*;
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
-#[derive(Component, Clone, Copy, PartialEq, Eq, Hash, Debug)]
+#[derive(Component, Copy, Clone, PartialEq, Eq, Hash, Debug)]
 pub struct PlayerId(pub u8);
 
-#[derive(Component, Clone, Copy, PartialEq, Eq, Debug)]
+#[derive(Component, Copy, Clone, Debug)]
+pub struct Transform {
+    pub position: Vec2,
+}
+
+#[derive(Component, Copy, Clone, Debug)]
 pub enum PlayerType {
     Human,
     Computer,
@@ -25,19 +29,7 @@ pub struct Board {
     pub owner: PlayerId,
 }
 
-#[derive(Component, Debug, Clone, Copy, PartialEq)]
-pub struct Cell {
-    pub coord: UVec2,
-    pub state: CellState,
-    pub board: Entity,
-}
-
-#[derive(Component, Clone, Copy, Debug, PartialEq)]
-pub struct Transform {
-    pub position: Vec2,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub enum CellState {
     Empty,
     Occupied(ShipName),
@@ -45,12 +37,14 @@ pub enum CellState {
     Miss,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-pub enum ShipDirection {
-    Vertical,
-    Horizontal,
+#[derive(Component, Copy, Clone, Debug)]
+pub struct Cell {
+    pub coord: UVec2,
+    pub state: CellState,
+    pub board: Entity,
 }
 
+/// Ships
 #[derive(Component, Debug)]
 pub struct Ship {
     pub name: ShipName,
@@ -59,7 +53,13 @@ pub struct Ship {
     pub cells: Vec<UVec2>,
 }
 
-#[derive(EnumIter, Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Copy, Clone, Debug)]
+pub enum ShipDirection {
+    Vertical,
+    Horizontal,
+}
+
+#[derive(EnumIter, Copy, Clone, PartialEq, Eq, Hash, Debug)]
 pub enum ShipName {
     Carrier,
     Battleship,
@@ -67,6 +67,7 @@ pub enum ShipName {
     Submarine,
     Destroyer,
 }
+
 
 impl ShipName {
     pub fn length(self) -> u8 {
