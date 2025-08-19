@@ -6,7 +6,7 @@ A simple implementation of the classic Battleship game using the [Bevy](https://
 
 - 1 human player vs 1 computer player
 - 10x10 board for each player
-- ECS-based architecture (Entities, Components, Systems)
+- ECS-based architecture ([Entities, Components, Systems](https://bevyengine.org/learn/book/getting-started/ecs/))
 - Board and cell grid logic
 - Ready for further development (ships, UI, gameplay)
 
