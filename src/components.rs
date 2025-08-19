@@ -32,7 +32,6 @@ pub struct Board {
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub enum CellState {
     Empty,
-    Occupied(ShipName),
     Hit,
     Miss,
 }
@@ -77,6 +76,20 @@ impl ShipName {
             ShipName::Cruiser => 3,
             ShipName::Submarine => 3,
             ShipName::Destroyer => 2,
+        }
+    }
+}
+
+impl Ship {
+    pub fn occupies_cell(&self, coord: UVec2) -> bool {
+        self.cells.contains(&coord)
+    }
+    
+    pub fn is_at_coord(&self, coord: UVec2) -> Option<ShipName> {
+        if self.occupies_cell(coord) {
+            Some(self.name)
+        } else {
+            None
         }
     }
 }

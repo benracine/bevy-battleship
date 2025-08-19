@@ -104,6 +104,7 @@ pub fn render_boards(
     mut commands: Commands,
     cell_query: Query<(Entity, &Cell, &Transform), Without<Sprite>>,
     board_query: Query<&Board>,
+    ship_query: Query<&Ship>,
 ) {
     let mut player_boards = std::collections::HashMap::new();
     for board in board_query.iter() {
@@ -119,9 +120,19 @@ pub fn render_boards(
         if let Ok(board) = board_query.get(cell.board) {
             let board_offset = player_boards.get(&board.owner).copied().unwrap_or(Vec3::ZERO);
             
+            // Check if any ship occupies this cell
+            let is_occupied = ship_query.iter()
+                .filter(|ship| ship.owner == board.owner)
+                .any(|ship| ship.occupies_cell(cell.coord));
+            
             let color = match cell.state {
-                CellState::Empty => Srgba::rgb(0.7, 0.7, 1.0),
-                CellState::Occupied(_) => Srgba::rgb(0.3, 0.3, 0.8),
+                CellState::Empty => {
+                    if is_occupied {
+                        Srgba::rgb(0.3, 0.3, 0.8) // Ship color
+                    } else {
+                        Srgba::rgb(0.7, 0.7, 1.0) // Empty color
+                    }
+                }
                 CellState::Hit => Srgba::rgb(1.0, 0.0, 0.0),
                 CellState::Miss => Srgba::rgb(0.5, 0.5, 0.5),
             };
