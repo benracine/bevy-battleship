@@ -6,11 +6,6 @@ use strum_macros::EnumIter;
 pub struct PlayerId(pub u8);
 
 #[derive(Component, Copy, Clone, Debug)]
-pub struct Transform {
-    pub position: Vec2,
-}
-
-#[derive(Component, Copy, Clone, Debug)]
 pub enum PlayerType {
     Human,
     Computer,
@@ -27,6 +22,7 @@ pub struct Player {
 pub struct Board {
     pub size: UVec2,
     pub owner: PlayerId,
+    pub player_type: PlayerType,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
@@ -85,6 +81,10 @@ impl Ship {
         self.cells.contains(&coord)
     }
 }
+
+// Logical grid position component for cells (board-space coordinates)
+#[derive(Component, Copy, Clone, Debug)]
+pub struct GridPos(pub UVec2);
 
 #[derive(Component, Debug)]
 pub struct PlayerLabels {

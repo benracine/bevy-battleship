@@ -1,5 +1,5 @@
 use crate::components::{
-    Board, Cell, CellState, Player, PlayerId, PlayerType, Ship, ShipDirection, ShipName,
+    Board, Cell, CellState, GridPos, Player, PlayerId, PlayerType, Ship, ShipDirection, ShipName,
 };
 use bevy::prelude::*;
 use bevy::sprite::Sprite;
@@ -34,6 +34,7 @@ pub fn spawn_boards(mut commands: Commands, query: Query<&Player>) {
         commands.spawn(Board {
             size: UVec2::new(10, 10),
             owner: player.id,
+            player_type: player.player_type,
         });
     }
 }
@@ -127,6 +128,7 @@ pub fn spawn_cells(mut commands: Commands, query: Query<(Entity, &Board)>) {
                         state: CellState::Empty,
                         board: board_entity,
                     },
+                    GridPos(coord),
                     Transform::from_translation(Vec3::new(x as f32, -(y as f32), 0.0)),
                 ));
             }
@@ -140,31 +142,32 @@ pub fn setup_camera(mut commands: Commands) {
 
 pub fn render_boards(
     mut commands: Commands,
-    cell_query: Query<(Entity, &Cell, &Transform), Without<Sprite>>,
+    cell_query: Query<(Entity, &Cell, &GridPos, &Transform), Without<Sprite>>,
     board_query: Query<&Board>,
     ship_query: Query<&Ship>,
 ) {
     let mut player_boards = std::collections::HashMap::new();
     for board in board_query.iter() {
-        let board_offset = match board.owner.0 {
-            0 => Vec3::new(0.0, -250.0, 0.0),  
-            1 => Vec3::new(0.0, 250.0, 0.0),
-            _ => Vec3::ZERO,
+        let board_offset = match board.player_type {
+            PlayerType::Human => Vec3::new(0.0, -300.0, 0.0),
+            PlayerType::Computer => Vec3::new(0.0, 300.0, 0.0),
         };
         player_boards.insert(board.owner, board_offset);
     }
 
-    for (entity, cell, transform) in cell_query.iter() {
+    for (entity, cell, grid_pos, transform) in cell_query.iter() {
         if let Ok(board) = board_query.get(cell.board) {
             let board_offset = player_boards.get(&board.owner).copied().unwrap_or(Vec3::ZERO);
             
             let is_occupied = ship_query.iter()
                 .filter(|ship| ship.owner == board.owner)
-                .any(|ship| ship.occupies_cell(cell.coord));
+                .any(|ship| ship.occupies_cell(grid_pos.0));
             
-            let color = match cell.state {
+        let color = match cell.state {
                 CellState::Empty => {
-                    if is_occupied {
+            // Only show ship positions (gray) on human player's board
+            // Computer board should hide ships until hit
+            if is_occupied && board.player_type == PlayerType::Human {
                         GRAY
                     } else {
                         BLUE
