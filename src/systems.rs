@@ -1,6 +1,6 @@
-
 use std::collections::HashSet;
 use bevy::prelude::*;
+use bevy::sprite::Sprite;
 use rand::Rng;
 use strum::IntoEnumIterator;
 use crate::components::{
@@ -97,4 +97,27 @@ pub fn spawn_cells(mut commands: Commands, query: Query<(Entity, &Board)>) {
 
 pub fn setup_camera(mut commands: Commands) {
     commands.spawn(Camera2d::default());
+}
+
+pub fn render_cells(
+    mut commands: Commands,
+    query: Query<(Entity, &Cell, &Transform), Without<Sprite>>,
+) {
+    for (entity, cell, transform) in query.iter() {
+            let color = match cell.state {
+                CellState::Empty => Srgba::rgb(0.7, 0.7, 1.0),
+                CellState::Occupied(_) => Srgba::rgb(0.3, 0.3, 0.8),
+                CellState::Hit => Srgba::RED,
+                CellState::Miss => Srgba::rgb(0.5, 0.5, 0.5),
+            };
+        commands.entity(entity)
+            .insert(Sprite {
+                color,
+                custom_size: Some(Vec2::splat(0.9)),
+                ..Default::default()
+            })
+            .insert(Transform::from_translation(
+                transform.position.extend(0.0)
+            ));
+    }
 }
