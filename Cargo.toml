@@ -5,3 +5,5 @@ edition = "2024"
 
 [dependencies]
 bevy = "0.16.1"
+strum = "0.26"
+strum_macros = "0.26"

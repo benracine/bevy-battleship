@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::components::{Board, Cell, CellState, Player, PlayerId, PlayerType, Transform};
+use crate::components::{Board, Cell, CellState, Player, PlayerId, PlayerType, Ship, Transform};
 
 pub fn spawn_players(mut commands: Commands) {
     commands.spawn(Player {
@@ -21,6 +21,18 @@ pub fn spawn_boards(mut commands: Commands, query: Query<&Player>) {
         commands.spawn(Board {
             size: board_size,
             owner: player.id,
+        });
+    }
+}
+
+pub fn spawn_ships(mut commands: Commands, query: Query<&Board>) {
+    for board in query.iter() {
+        // Iterate over each shipname
+        
+        commands.spawn(Ship {
+            name: ShipName::Carrier,
+            owner: board.owner,
+            cells: vec![UVec2::new(0, 0), UVec2::new(1, 0), UVec2::new(2, 0)],
         });
     }
 }

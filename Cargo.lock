@@ -447,6 +447,8 @@ name = "bevy_battleship"
 version = "0.1.0"
 dependencies = [
  "bevy",
+ "strum",
+ "strum_macros",
 ]
 
 [[package]]

@@ -1,5 +1,7 @@
 // ...existing code...
 use bevy::prelude::*;
+use strum::IntoEnumIterator;
+use strum_macros::EnumIter;
 
 #[derive(Component, Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct PlayerId(pub u8);
@@ -50,7 +52,7 @@ pub struct Ship {
     pub cells: Vec<UVec2>,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(EnumIter, Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum ShipName {
     Carrier,
     Battleship,
