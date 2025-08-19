@@ -26,10 +26,9 @@ pub fn spawn_players(mut commands: Commands) {
 }
 
 pub fn spawn_boards(mut commands: Commands, query: Query<&Player>) {
-    let board_size = UVec2::new(10, 10);
     for player in query.iter() {
         commands.spawn(Board {
-            size: board_size,
+            size: UVec2::new(10, 10),
             owner: player.id,
         });
     }
