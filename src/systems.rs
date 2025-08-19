@@ -42,9 +42,9 @@ pub fn spawn_ships(mut commands: Commands, query: Query<&Board>) {
         let mut rng = rand::rng();
         for ship_name in ShipName::iter() {
             let ship_length = ship_name.length() as u32;
+            // Try as may times as necessary to find a placement that fits on the board
             'placement: loop {
                 let direction = if rng.random() {
-                    // Fixed: use random() instead of gen_bool
                     ShipDirection::Horizontal
                 } else {
                     ShipDirection::Vertical
@@ -53,8 +53,8 @@ pub fn spawn_ships(mut commands: Commands, query: Query<&Board>) {
                     ShipDirection::Horizontal => (board.size.x - ship_length, board.size.y - 1),
                     ShipDirection::Vertical => (board.size.x - 1, board.size.y - ship_length),
                 };
-                let start_x = rng.random_range(0..=max_x); // Fixed: use random_range
-                let start_y = rng.random_range(0..=max_y); // Fixed: use random_range
+                let start_x = rng.random_range(0..=max_x); 
+                let start_y = rng.random_range(0..=max_y); 
                 let mut cells = Vec::new();
                 for i in 0..ship_length {
                     let coord = match direction {
@@ -93,9 +93,7 @@ pub fn spawn_cells(mut commands: Commands, query: Query<(Entity, &Board)>) {
                         state: CellState::Empty,
                         board: board_entity,
                     },
-                    CellTransform {
-                        position: Vec2::new(x as f32, y as f32),
-                    },
+                    Transform::from_translation(Vec3::new(x as f32, y as f32, 0.0)),
                 ));
             }
         }
@@ -108,25 +106,25 @@ pub fn setup_camera(mut commands: Commands) {
 
 pub fn render_boards(
     mut commands: Commands,
-    cell_query: Query<(Entity, &Cell, &CellTransform), Without<Sprite>>,
+    cell_query: Query<(Entity, &Cell, &Transform), Without<Sprite>>,
     board_query: Query<&Board>,
 ) {
     // Get board positions - player 1 on left, player 2 on right
     let mut player_boards = std::collections::HashMap::new();
     for board in board_query.iter() {
         let board_offset = match board.owner.0 {
-            0 => Vec2::new(-6.0, 0.0), // Player 1 board on left
-            1 => Vec2::new(6.0, 0.0),  // Player 2 board on right
-            _ => Vec2::ZERO,
+            0 => Vec3::new(-6.0, 0.0, 0.0), // Player 1 board on left
+            1 => Vec3::new(6.0, 0.0, 0.0),  // Player 2 board on right
+            _ => Vec3::ZERO,
         };
         player_boards.insert(board.owner, board_offset);
     }
 
     // Render cells for each board
-    for (entity, cell, cell_transform) in cell_query.iter() {
+    for (entity, cell, transform) in cell_query.iter() {
         // Get the board this cell belongs to
         if let Ok(board) = board_query.get(cell.board) {
-            let board_offset = player_boards.get(&board.owner).copied().unwrap_or(Vec2::ZERO);
+            let board_offset = player_boards.get(&board.owner).copied().unwrap_or(Vec3::ZERO);
             
             let color = match cell.state {
                 CellState::Empty => Srgba::rgb(0.7, 0.7, 1.0),
@@ -143,7 +141,7 @@ pub fn render_boards(
                     ..Default::default()
                 })
                 .insert(Transform::from_translation(
-                    (cell_transform.position + board_offset).extend(0.0),
+                    transform.translation + board_offset,
                 ));
         }
     }
