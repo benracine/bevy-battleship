@@ -106,27 +106,45 @@ pub fn setup_camera(mut commands: Commands) {
     commands.spawn(Camera2d::default());
 }
 
-// Fixed: Added the missing CellTransform parameter and corrected the query
-pub fn render_cells(
+pub fn render_boards(
     mut commands: Commands,
-    query: Query<(Entity, &Cell, &CellTransform), Without<Sprite>>,
+    cell_query: Query<(Entity, &Cell, &CellTransform), Without<Sprite>>,
+    board_query: Query<&Board>,
 ) {
-    for (entity, cell, cell_transform) in query.iter() {
-        let color = match cell.state {
-            CellState::Empty => Srgba::rgb(0.7, 0.7, 1.0),
-            CellState::Occupied(_) => Srgba::rgb(0.3, 0.3, 0.8),
-            CellState::Hit => Srgba::RED,
-            CellState::Miss => Srgba::rgb(0.5, 0.5, 0.5),
+    // Get board positions - player 1 on left, player 2 on right
+    let mut player_boards = std::collections::HashMap::new();
+    for board in board_query.iter() {
+        let board_offset = match board.owner.0 {
+            0 => Vec2::new(-6.0, 0.0), // Player 1 board on left
+            1 => Vec2::new(6.0, 0.0),  // Player 2 board on right
+            _ => Vec2::ZERO,
         };
-        commands
-            .entity(entity)
-            .insert(Sprite {
-                color: color.into(),
-                custom_size: Some(Vec2::splat(0.9)),
-                ..Default::default()
-            })
-            .insert(Transform::from_translation(
-                cell_transform.position.extend(0.0),
-            ));
+        player_boards.insert(board.owner, board_offset);
+    }
+
+    // Render cells for each board
+    for (entity, cell, cell_transform) in cell_query.iter() {
+        // Get the board this cell belongs to
+        if let Ok(board) = board_query.get(cell.board) {
+            let board_offset = player_boards.get(&board.owner).copied().unwrap_or(Vec2::ZERO);
+            
+            let color = match cell.state {
+                CellState::Empty => Srgba::rgb(0.7, 0.7, 1.0),
+                CellState::Occupied(_) => Srgba::rgb(0.3, 0.3, 0.8),
+                CellState::Hit => Srgba::RED,
+                CellState::Miss => Srgba::rgb(0.5, 0.5, 0.5),
+            };
+            
+            commands
+                .entity(entity)
+                .insert(Sprite {
+                    color: color.into(),
+                    custom_size: Some(Vec2::splat(0.9)),
+                    ..Default::default()
+                })
+                .insert(Transform::from_translation(
+                    (cell_transform.position + board_offset).extend(0.0),
+                ));
+        }
     }
 }
