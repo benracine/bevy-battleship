@@ -4,7 +4,14 @@ use bevy::prelude::*;
 
 pub fn run_game_app() {
     App::new()
-        .add_plugins(DefaultPlugins)
+        .add_plugins(DefaultPlugins.set(WindowPlugin {
+            primary_window: Some(Window {
+                title: "Bevy Battleship".to_string(),
+                resolution: (600.0, 1000.0).into(),
+                ..default()
+            }),
+            ..default()
+        }))
         .init_resource::<GameState>()
         .add_systems(
             Startup,

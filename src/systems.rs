@@ -147,8 +147,8 @@ pub fn render_boards(
     let mut player_boards = std::collections::HashMap::new();
     for board in board_query.iter() {
         let board_offset = match board.owner.0 {
-            0 => Vec3::new(-250.0, 0.0, 0.0),
-            1 => Vec3::new(250.0, 0.0, 0.0),
+            0 => Vec3::new(0.0, -250.0, 0.0),  
+            1 => Vec3::new(0.0, 250.0, 0.0),
             _ => Vec3::ZERO,
         };
         player_boards.insert(board.owner, board_offset);
