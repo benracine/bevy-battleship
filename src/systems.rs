@@ -53,16 +53,48 @@ pub fn spawn_ships(mut commands: Commands, query: Query<&Board>) {
                 let start_x = rng.random_range(0..=max_x); 
                 let start_y = rng.random_range(0..=max_y); 
                 let mut cells = Vec::new();
+                
                 for i in 0..ship_length {
                     let coord = match direction {
                         ShipDirection::Horizontal => UVec2::new(start_x + i, start_y),
                         ShipDirection::Vertical => UVec2::new(start_x, start_y + i),
                     };
-                    if occupied.contains(&coord) {
-                        continue 'placement;
-                    }
                     cells.push(coord);
                 }
+                
+                let mut can_place = true;
+                for &cell_coord in &cells {
+                    if occupied.contains(&cell_coord) {
+                        can_place = false;
+                        break;
+                    }
+                    
+                    for dx in -1i32..=1 {
+                        for dy in -1i32..=1 {
+                            if dx == 0 && dy == 0 { continue; }
+                            
+                            let check_x = cell_coord.x as i32 + dx;
+                            let check_y = cell_coord.y as i32 + dy;
+                            
+                            if check_x >= 0 && check_y >= 0 
+                                && check_x < board.size.x as i32 
+                                && check_y < board.size.y as i32 {
+                                let check_coord = UVec2::new(check_x as u32, check_y as u32);
+                                if occupied.contains(&check_coord) {
+                                    can_place = false;
+                                    break;
+                                }
+                            }
+                        }
+                        if !can_place { break; }
+                    }
+                    if !can_place { break; }
+                }
+                
+                if !can_place {
+                    continue 'placement;
+                }
+                
                 for &coord in &cells {
                     occupied.insert(coord);
                 }
@@ -120,7 +152,6 @@ pub fn render_boards(
         if let Ok(board) = board_query.get(cell.board) {
             let board_offset = player_boards.get(&board.owner).copied().unwrap_or(Vec3::ZERO);
             
-            // Check if any ship occupies this cell
             let is_occupied = ship_query.iter()
                 .filter(|ship| ship.owner == board.owner)
                 .any(|ship| ship.occupies_cell(cell.coord));
@@ -128,9 +159,9 @@ pub fn render_boards(
             let color = match cell.state {
                 CellState::Empty => {
                     if is_occupied {
-                        Srgba::rgb(0.3, 0.3, 0.8) // Ship color
+                        Srgba::rgb(0.3, 0.3, 0.8)
                     } else {
-                        Srgba::rgb(0.7, 0.7, 1.0) // Empty color
+                        Srgba::rgb(0.7, 0.7, 1.0)
                     }
                 }
                 CellState::Hit => Srgba::rgb(1.0, 0.0, 0.0),
