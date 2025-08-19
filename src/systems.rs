@@ -1,10 +1,11 @@
 
+use std::collections::HashSet;
+use bevy::prelude::*;
+use rand::Rng;
+use strum::IntoEnumIterator;
 use crate::components::{
     Board, Cell, CellState, Player, PlayerId, PlayerType, Ship, ShipDirection, ShipName, Transform,
 };
-use bevy::prelude::*;
-use rand::Rng;
-use std::collections::HashSet;
 
 pub fn spawn_players(mut commands: Commands) {
     commands.spawn(Player {
