@@ -44,3 +44,16 @@ cargo watch -x check -x build -x run
 ```
 
 This will re-run your code every time you save a file, speeding up your workflow.
+
+## Some Bevy Examples
+
+Here are some official Bevy examples you can explore:
+
+- [hello_world](https://github.com/bevyengine/bevy/blob/main/examples/hello_world.rs): The simplest Bevy app.
+- [ecs_guide](https://github.com/bevyengine/bevy/blob/main/examples/ecs/ecs_guide.rs): A comprehensive ECS usage guide.
+- [Examples on GitHub](https://github.com/bevyengine/bevy/tree/main/examples)
+- [Bevy Book: Examples](https://bevyengine.org/learn/book/examples/)
+- [Bevy Cheat Book: Examples](https://bevy-cheatbook.github.io/examples.html)
+- [breakout](https://github.com/bevyengine/bevy/blob/main/examples/game/breakout.rs): A full game example.
+- [sprite](https://github.com/bevyengine/bevy/blob/main/examples/2d/sprite.rs): Basic 2D sprite rendering.
+- [3d_scene](https://github.com/bevyengine/bevy/blob/main/examples/3d/3d_scene.rs): Basic 3D scene setup.
