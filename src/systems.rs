@@ -101,36 +101,6 @@ pub fn setup_camera(mut commands: Commands) {
     commands.spawn(Camera2d::default());
 }
 
-pub fn test_simple_render(mut commands: Commands) {
-    // Spawn a few test sprites at known positions
-    commands.spawn((
-        Sprite {
-            color: Srgba::rgb(1.0, 0.0, 0.0).into(),
-            custom_size: Some(Vec2::splat(100.0)),
-            ..Default::default()
-        },
-        Transform::from_translation(Vec3::new(-200.0, 0.0, 0.0)),
-    ));
-    
-    commands.spawn((
-        Sprite {
-            color: Srgba::rgb(0.0, 1.0, 0.0).into(),
-            custom_size: Some(Vec2::splat(100.0)),
-            ..Default::default()
-        },
-        Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
-    ));
-    
-    commands.spawn((
-        Sprite {
-            color: Srgba::rgb(0.0, 0.0, 1.0).into(),
-            custom_size: Some(Vec2::splat(100.0)),
-            ..Default::default()
-        },
-        Transform::from_translation(Vec3::new(200.0, 0.0, 0.0)),
-    ));
-}
-
 pub fn render_boards(
     mut commands: Commands,
     cell_query: Query<(Entity, &Cell, &Transform), Without<Sprite>>,
