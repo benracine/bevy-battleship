@@ -5,7 +5,7 @@ use strum_macros::EnumIter;
 #[derive(Component, Copy, Clone, PartialEq, Eq, Hash, Debug)]
 pub struct PlayerId(pub u8);
 
-#[derive(Component, Copy, Clone, Debug)]
+#[derive(Component, Copy, Clone, Debug, PartialEq)]
 pub enum PlayerType {
     Human,
     Computer,

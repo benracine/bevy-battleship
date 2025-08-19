@@ -10,6 +10,8 @@ use strum::IntoEnumIterator;
 const GRAY: Srgba = Srgba::rgb(0.5, 0.5, 0.5);
 const BLUE: Srgba = Srgba::rgb(0.0, 0.3, 0.6);
 const RED: Srgba = Srgba::rgb(1.0, 0.0, 0.0);
+const GRID_CELL_SIZE: f32 = 30.0;
+const GRID_CELL_MARGIN: f32 = 5.0;
 
 #[derive(Component)]
 pub struct CellTransform {
@@ -149,8 +151,8 @@ pub fn render_boards(
     let mut player_boards = std::collections::HashMap::new();
     for board in board_query.iter() {
         let board_offset = match board.player_type {
-            PlayerType::Human => Vec3::new(0.0, -300.0, 0.0),
-            PlayerType::Computer => Vec3::new(0.0, 300.0, 0.0),
+            PlayerType::Human => Vec3::new(0.0, -220.0, 0.0),
+            PlayerType::Computer => Vec3::new(0.0, 220.0, 0.0),
         };
         player_boards.insert(board.owner, board_offset);
     }
@@ -181,13 +183,13 @@ pub fn render_boards(
                 .entity(entity)
                 .insert(Sprite {
                     color: color.into(),
-                    custom_size: Some(Vec2::splat(40.0)),
+                    custom_size: Some(Vec2::splat(GRID_CELL_SIZE)),
                     ..Default::default()
                 })
                 .insert(Transform::from_translation(
                     Vec3::new(
-                        (transform.translation.x * 45.0) + board_offset.x - 200.0,
-                        (transform.translation.y * 45.0) + board_offset.y + 200.0,
+                        (transform.translation.x * (GRID_CELL_SIZE + GRID_CELL_MARGIN)) + board_offset.x - 200.0,
+                        (transform.translation.y * (GRID_CELL_SIZE + GRID_CELL_MARGIN)) + board_offset.y + 200.0,
                         0.0
                     ),
                 ));
