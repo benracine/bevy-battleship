@@ -58,10 +58,10 @@ pub fn spawn_ships(mut commands: Commands, query: Query<&Board>) {
                     ShipDirection::Horizontal => (board.size.x - ship_length, board.size.y - 1),
                     ShipDirection::Vertical => (board.size.x - 1, board.size.y - ship_length),
                 };
-                let start_x = rng.random_range(0..=max_x); 
-                let start_y = rng.random_range(0..=max_y); 
+                let start_x = rng.random_range(0..=max_x);
+                let start_y = rng.random_range(0..=max_y);
                 let mut cells = Vec::new();
-                
+
                 for i in 0..ship_length {
                     let coord = match direction {
                         ShipDirection::Horizontal => UVec2::new(start_x + i, start_y),
@@ -69,24 +69,28 @@ pub fn spawn_ships(mut commands: Commands, query: Query<&Board>) {
                     };
                     cells.push(coord);
                 }
-                
+
                 let mut can_place = true;
                 for &cell_coord in &cells {
                     if occupied.contains(&cell_coord) {
                         can_place = false;
                         break;
                     }
-                    
+
                     for dx in -1i32..=1 {
                         for dy in -1i32..=1 {
-                            if dx == 0 && dy == 0 { continue; }
-                            
+                            if dx == 0 && dy == 0 {
+                                continue;
+                            }
+
                             let check_x = cell_coord.x as i32 + dx;
                             let check_y = cell_coord.y as i32 + dy;
-                            
-                            if check_x >= 0 && check_y >= 0 
-                                && check_x < board.size.x as i32 
-                                && check_y < board.size.y as i32 {
+
+                            if check_x >= 0
+                                && check_y >= 0
+                                && check_x < board.size.x as i32
+                                && check_y < board.size.y as i32
+                            {
                                 let check_coord = UVec2::new(check_x as u32, check_y as u32);
                                 if occupied.contains(&check_coord) {
                                     can_place = false;
@@ -94,15 +98,19 @@ pub fn spawn_ships(mut commands: Commands, query: Query<&Board>) {
                                 }
                             }
                         }
-                        if !can_place { break; }
+                        if !can_place {
+                            break;
+                        }
                     }
-                    if !can_place { break; }
+                    if !can_place {
+                        break;
+                    }
                 }
-                
+
                 if !can_place {
                     continue 'placement;
                 }
-                
+
                 for &coord in &cells {
                     occupied.insert(coord);
                 }
@@ -117,8 +125,6 @@ pub fn spawn_ships(mut commands: Commands, query: Query<&Board>) {
         }
     }
 }
-
-//
 
 pub fn spawn_cells(mut commands: Commands, query: Query<(Entity, &Board)>) {
     for (board_entity, board) in query.iter() {
@@ -148,7 +154,6 @@ pub fn spawn_board_labels(
     board_query: Query<&Board>,
     asset_server: Res<AssetServer>,
 ) {
-    // Precompute board offsets like in render_boards
     let mut board_offsets = std::collections::HashMap::new();
     for board in board_query.iter() {
         let board_offset = match board.player_type {
@@ -161,27 +166,22 @@ pub fn spawn_board_labels(
     let font: Handle<Font> = asset_server.load("fonts/FiraSans-Bold.ttf");
 
     for board in board_query.iter() {
-        let board_offset = *board_offsets
-            .get(&board.owner)
-            .unwrap_or(&Vec3::ZERO);
+        let board_offset = *board_offsets.get(&board.owner).unwrap_or(&Vec3::ZERO);
 
-        // Top-left cell center of the grid in world space (matches render_boards math)
         let top_left = Vec2::new(board_offset.x - 200.0, board_offset.y + 200.0);
         let grid_w = (board.size.x as f32 - 1.0) * GRID_PITCH;
-        // let grid_h = (board.size.y as f32 - 1.0) * GRID_PITCH; // not needed for label
-
         let center_x = top_left.x + grid_w * 0.5;
-        let label_y = top_left.y + GRID_CELL_SIZE * 0.5 + 24.0; // a bit above the grid
+    let label_y = top_left.y + GRID_CELL_SIZE * 0.5 + 24.0;
 
         let label_text = match board.player_type {
             PlayerType::Human => "You",
             PlayerType::Computer => "Computer",
         };
 
-    commands.spawn((
-        Text2d::new(label_text),
-        Transform::from_xyz(center_x, label_y, 10.0),
-    ));
+        commands.spawn((
+            Text2d::new(label_text),
+            Transform::from_xyz(center_x, label_y, 10.0),
+        ));
     }
 }
 
@@ -202,17 +202,19 @@ pub fn render_boards(
 
     for (entity, cell, grid_pos, transform) in cell_query.iter() {
         if let Ok(board) = board_query.get(cell.board) {
-            let board_offset = player_boards.get(&board.owner).copied().unwrap_or(Vec3::ZERO);
-            
-            let is_occupied = ship_query.iter()
+            let board_offset = player_boards
+                .get(&board.owner)
+                .copied()
+                .unwrap_or(Vec3::ZERO);
+
+            let is_occupied = ship_query
+                .iter()
                 .filter(|ship| ship.owner == board.owner)
                 .any(|ship| ship.occupies_cell(grid_pos.0));
-            
-        let color = match cell.state {
+
+            let color = match cell.state {
                 CellState::Empty => {
-            // Only show ship positions (gray) on human player's board
-            // Computer board should hide ships until hit
-            if is_occupied && board.player_type == PlayerType::Human {
+                    if is_occupied && board.player_type == PlayerType::Human {
                         GRAY
                     } else {
                         BLUE
@@ -221,7 +223,7 @@ pub fn render_boards(
                 CellState::Hit => RED,
                 CellState::Miss => Srgba::rgb(0.8, 0.8, 0.8),
             };
-            
+
             commands
                 .entity(entity)
                 .insert(Sprite {
@@ -229,13 +231,11 @@ pub fn render_boards(
                     custom_size: Some(Vec2::splat(GRID_CELL_SIZE)),
                     ..Default::default()
                 })
-                .insert(Transform::from_translation(
-                    Vec3::new(
-                        (transform.translation.x * GRID_PITCH) + board_offset.x - 200.0,
-                        (transform.translation.y * GRID_PITCH) + board_offset.y + 200.0,
-                        0.0
-                    ),
-                ));
+                .insert(Transform::from_translation(Vec3::new(
+                    (transform.translation.x * GRID_PITCH) + board_offset.x - 200.0,
+                    (transform.translation.y * GRID_PITCH) + board_offset.y + 200.0,
+                    0.0,
+                )));
         }
     }
 }

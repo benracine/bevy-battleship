@@ -39,7 +39,6 @@ pub struct Cell {
     pub board: Entity,
 }
 
-/// Ships
 #[derive(Component, Debug)]
 pub struct Ship {
     pub name: ShipName,
@@ -63,7 +62,6 @@ pub enum ShipName {
     Destroyer,
 }
 
-
 impl ShipName {
     pub fn length(self) -> u8 {
         match self {
@@ -82,7 +80,6 @@ impl Ship {
     }
 }
 
-// Logical grid position component for cells (board-space coordinates)
 #[derive(Component, Copy, Clone, Debug)]
 pub struct GridPos(pub UVec2);
 
