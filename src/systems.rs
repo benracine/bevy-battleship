@@ -90,7 +90,7 @@ pub fn spawn_cells(mut commands: Commands, query: Query<(Entity, &Board)>) {
                         state: CellState::Empty,
                         board: board_entity,
                     },
-                    Transform::from_translation(Vec3::new(x as f32, y as f32, 0.0)),
+                    Transform::from_translation(Vec3::new(x as f32, -(y as f32), 0.0)),
                 ));
             }
         }
@@ -98,7 +98,10 @@ pub fn spawn_cells(mut commands: Commands, query: Query<(Entity, &Board)>) {
 }
 
 pub fn setup_camera(mut commands: Commands) {
-    commands.spawn(Camera2d::default());
+    commands.spawn((
+        Camera2d::default(),
+        Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)).with_scale(Vec3::splat(0.5)),
+    ));
 }
 
 pub fn render_boards(
@@ -109,8 +112,8 @@ pub fn render_boards(
     let mut player_boards = std::collections::HashMap::new();
     for board in board_query.iter() {
         let board_offset = match board.owner.0 {
-            0 => Vec3::new(-6.0, 0.0, 0.0),
-            1 => Vec3::new(6.0, 0.0, 0.0),
+            0 => Vec3::new(-240.0, 0.0, 0.0),
+            1 => Vec3::new(240.0, 0.0, 0.0),
             _ => Vec3::ZERO,
         };
         player_boards.insert(board.owner, board_offset);
@@ -131,11 +134,11 @@ pub fn render_boards(
                 .entity(entity)
                 .insert(Sprite {
                     color: color.into(),
-                    custom_size: Some(Vec2::splat(0.9)),
+                    custom_size: Some(Vec2::splat(32.0)),
                     ..Default::default()
                 })
                 .insert(Transform::from_translation(
-                    transform.translation + board_offset,
+                    (transform.translation + board_offset) * 40.0,
                 ));
         }
     }
